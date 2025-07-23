@@ -1,305 +1,581 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ChevronRight, Film, UtensilsCrossed, MapPin, Sparkles, ArrowLeft } from "lucide-react"
-import confetti from "canvas-confetti"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { useSession } from "@/lib/auth-client";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Film,
+  MapPin,
+  Music,
+  Sparkles,
+  Utensils,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface OnboardingWizardProps {
-  onComplete: (affinities: any[]) => void
+  onComplete: (affinities: any[]) => void;
 }
 
-const SAMPLE_FILMS = [
-  { id: "pulp-fiction", name: "Pulp Fiction", genre: "Crime/Drama", emoji: "🎬" },
-  { id: "spirited-away", name: "Spirited Away", genre: "Animation", emoji: "✨" },
-  { id: "the-grand-budapest", name: "The Grand Budapest Hotel", genre: "Comedy/Drama", emoji: "🏨" },
-  { id: "parasite", name: "Parasite", genre: "Thriller", emoji: "🎭" },
-  { id: "moonlight", name: "Moonlight", genre: "Drama", emoji: "🌙" },
-  { id: "mad-max", name: "Mad Max: Fury Road", genre: "Action", emoji: "🚗" },
-]
-
-const SAMPLE_CUISINES = [
-  { id: "japanese", name: "Japanese", type: "Sushi & Ramen", emoji: "🍣" },
-  { id: "italian", name: "Italian", type: "Pasta & Pizza", emoji: "🍝" },
-  { id: "mexican", name: "Mexican", type: "Tacos & Mole", emoji: "🌮" },
-  { id: "indian", name: "Indian", type: "Curry & Tandoor", emoji: "🍛" },
-  { id: "french", name: "French", type: "Bistro & Patisserie", emoji: "🥐" },
-  { id: "korean", name: "Korean", type: "BBQ & Kimchi", emoji: "🥢" },
-]
-
-const SAMPLE_DESTINATIONS = [
-  { id: "tokyo", name: "Tokyo", vibe: "Urban & Traditional", emoji: "🏯" },
-  { id: "paris", name: "Paris", vibe: "Romantic & Artistic", emoji: "🗼" },
-  { id: "barcelona", name: "Barcelona", vibe: "Vibrant & Coastal", emoji: "🏖️" },
-  { id: "istanbul", name: "Istanbul", vibe: "Historic & Exotic", emoji: "🕌" },
-  { id: "new-york", name: "New York", vibe: "Fast-paced & Diverse", emoji: "🏙️" },
-  { id: "bali", name: "Bali", vibe: "Tropical & Spiritual", emoji: "🌺" },
-]
+// Enhanced data with more comprehensive options
+const onboardingData = {
+  1: {
+    title: "What type of movies do you love?",
+    subtitle: "Help us understand your cinematic taste",
+    icon: Film,
+    data: [
+      {
+        id: "action",
+        name: "Action & Adventure",
+        description: "High-octane thrills and excitement",
+      },
+      {
+        id: "comedy",
+        name: "Comedy",
+        description: "Laughs and light-hearted entertainment",
+      },
+      {
+        id: "drama",
+        name: "Drama",
+        description: "Emotional storytelling and character depth",
+      },
+      {
+        id: "horror",
+        name: "Horror",
+        description: "Spine-chilling suspense and scares",
+      },
+      {
+        id: "romance",
+        name: "Romance",
+        description: "Love stories and emotional connections",
+      },
+      {
+        id: "sci-fi",
+        name: "Sci-Fi",
+        description: "Futuristic worlds and technology",
+      },
+      {
+        id: "documentary",
+        name: "Documentary",
+        description: "Real stories and educational content",
+      },
+      {
+        id: "animation",
+        name: "Animation",
+        description: "Animated films and cartoons",
+      },
+      {
+        id: "thriller",
+        name: "Thriller",
+        description: "Edge-of-your-seat suspense",
+      },
+      {
+        id: "fantasy",
+        name: "Fantasy",
+        description: "Magical worlds and mythological stories",
+      },
+    ],
+  },
+  2: {
+    title: "What cuisine makes your mouth water?",
+    subtitle: "Let's explore your culinary preferences",
+    icon: Utensils,
+    data: [
+      {
+        id: "italian",
+        name: "Italian",
+        description: "Pasta, pizza, and Mediterranean flavors",
+      },
+      {
+        id: "japanese",
+        name: "Japanese",
+        description: "Sushi, ramen, and authentic Japanese dishes",
+      },
+      {
+        id: "mexican",
+        name: "Mexican",
+        description: "Tacos, spicy flavors, and vibrant cuisine",
+      },
+      {
+        id: "chinese",
+        name: "Chinese",
+        description: "Dim sum, stir-fry, and traditional dishes",
+      },
+      {
+        id: "indian",
+        name: "Indian",
+        description: "Curries, spices, and rich flavors",
+      },
+      {
+        id: "french",
+        name: "French",
+        description: "Fine dining and culinary artistry",
+      },
+      {
+        id: "thai",
+        name: "Thai",
+        description: "Sweet, sour, and spicy Southeast Asian flavors",
+      },
+      {
+        id: "mediterranean",
+        name: "Mediterranean",
+        description: "Fresh, healthy, and flavorful dishes",
+      },
+      {
+        id: "american",
+        name: "American",
+        description: "Classic comfort food and BBQ",
+      },
+      {
+        id: "korean",
+        name: "Korean",
+        description: "K-BBQ, kimchi, and fermented flavors",
+      },
+    ],
+  },
+  3: {
+    title: "Which music genres move your soul?",
+    subtitle: "Share your musical preferences with us",
+    icon: Music,
+    data: [
+      {
+        id: "pop",
+        name: "Pop",
+        description: "Catchy melodies and mainstream hits",
+      },
+      {
+        id: "rock",
+        name: "Rock",
+        description: "Guitar-driven and energetic music",
+      },
+      {
+        id: "jazz",
+        name: "Jazz",
+        description: "Improvisation and sophisticated harmonies",
+      },
+      {
+        id: "classical",
+        name: "Classical",
+        description: "Orchestral and timeless compositions",
+      },
+      {
+        id: "hip-hop",
+        name: "Hip-Hop",
+        description: "Rhythmic beats and lyrical expression",
+      },
+      {
+        id: "electronic",
+        name: "Electronic",
+        description: "Synthesized sounds and dance beats",
+      },
+      {
+        id: "indie",
+        name: "Indie",
+        description: "Independent and alternative sounds",
+      },
+      {
+        id: "folk",
+        name: "Folk",
+        description: "Traditional and acoustic storytelling",
+      },
+      {
+        id: "r&b",
+        name: "R&B/Soul",
+        description: "Smooth vocals and emotional depth",
+      },
+      {
+        id: "world",
+        name: "World Music",
+        description: "Global sounds and cultural fusion",
+      },
+    ],
+  },
+  4: {
+    title: "What destinations call to you?",
+    subtitle: "Tell us about your travel dreams",
+    icon: MapPin,
+    data: [
+      {
+        id: "urban",
+        name: "Urban Cities",
+        description: "Bustling metropolises and city life",
+      },
+      {
+        id: "beach",
+        name: "Beach & Coastal",
+        description: "Ocean views and relaxation",
+      },
+      {
+        id: "mountains",
+        name: "Mountains",
+        description: "Alpine adventures and scenic views",
+      },
+      {
+        id: "cultural",
+        name: "Cultural Sites",
+        description: "Museums, temples, and historical places",
+      },
+      {
+        id: "nature",
+        name: "Nature & Wildlife",
+        description: "National parks and natural wonders",
+      },
+      {
+        id: "adventure",
+        name: "Adventure Sports",
+        description: "Thrilling outdoor activities",
+      },
+      {
+        id: "luxury",
+        name: "Luxury Resorts",
+        description: "High-end accommodations and spas",
+      },
+      {
+        id: "backpacking",
+        name: "Backpacking",
+        description: "Budget travel and authentic experiences",
+      },
+      {
+        id: "food-tour",
+        name: "Food Tourism",
+        description: "Culinary adventures and local cuisine",
+      },
+      {
+        id: "art-culture",
+        name: "Art & Culture",
+        description: "Galleries, festivals, and cultural events",
+      },
+    ],
+  },
+};
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
-  const [step, setStep] = useState(1)
-  const [selectedFilm, setSelectedFilm] = useState<string>("")
-  const [selectedCuisine, setSelectedCuisine] = useState<string>("")
-  const [selectedDestination, setSelectedDestination] = useState<string>("")
-  const [customInput, setCustomInput] = useState("")
+  const { data: session, isPending: isLoading } = useSession();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selections, setSelections] = useState<{ [key: number]: string[] }>({});
+  const [isCompleting, setIsCompleting] = useState(false);
+
+  // Load saved progress on mount
+  useEffect(() => {
+    if (session?.user) {
+      const progressKey = `onboarding_progress_${session.user.id}`;
+      const savedProgress = localStorage.getItem(progressKey);
+      if (savedProgress) {
+        try {
+          const { step, selections: savedSelections } =
+            JSON.parse(savedProgress);
+          setCurrentStep(step);
+          setSelections(savedSelections);
+        } catch (error) {
+          console.error("Error loading onboarding progress:", error);
+        }
+      }
+    }
+  }, [session]);
+
+  // Save progress whenever selections change
+  useEffect(() => {
+    if (session?.user && Object.keys(selections).length > 0) {
+      const progressKey = `onboarding_progress_${session.user.id}`;
+      localStorage.setItem(
+        progressKey,
+        JSON.stringify({ step: currentStep, selections })
+      );
+    }
+  }, [currentStep, selections, session]);
 
   const handleNext = () => {
-    if (step < 3) {
-      setStep(step + 1)
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
     } else {
-      const affinities = [
-        { type: "film", id: selectedFilm, category: "entertainment" },
-        { type: "cuisine", id: selectedCuisine, category: "food" },
-        { type: "destination", id: selectedDestination, category: "travel" },
-      ]
-
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ["#8B5CF6", "#06B6D4", "#EC4899", "#F59E0B"],
-      })
-
-      setTimeout(() => onComplete(affinities), 1000)
+      handleComplete();
     }
-  }
+  };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1)
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
+
+  const handleComplete = async () => {
+    setIsCompleting(true);
+
+    try {
+      // Convert selections to affinities format
+      const affinities = Object.entries(selections).flatMap(([step, items]) => {
+        const stepData =
+          onboardingData[parseInt(step) as keyof typeof onboardingData];
+        return items.map((itemId) => {
+          const item = stepData.data.find((d) => d.id === itemId);
+          return {
+            type: stepData.title.toLowerCase().includes("movie")
+              ? "movie_genre"
+              : stepData.title.toLowerCase().includes("cuisine")
+              ? "cuisine"
+              : stepData.title.toLowerCase().includes("music")
+              ? "music_genre"
+              : "travel_destination",
+            id: itemId,
+            name: item?.name || itemId,
+            description: item?.description || "",
+          };
+        });
+      });
+
+      // Clear progress since we're completing
+      if (session?.user) {
+        const progressKey = `onboarding_progress_${session.user.id}`;
+        const onboardingKey = `onboarding_complete_${session.user.id}`;
+        const dateKey = `${onboardingKey}_date`;
+
+        localStorage.removeItem(progressKey);
+        // Store completion date for profile page
+        localStorage.setItem(dateKey, new Date().toISOString());
+      }
+
+      onComplete(affinities);
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
 
   const canProceed = () => {
-    switch (step) {
-      case 1:
-        return selectedFilm !== ""
-      case 2:
-        return selectedCuisine !== ""
-      case 3:
-        return selectedDestination !== ""
-      default:
-        return false
-    }
-  }
+    const currentSelections = selections[currentStep] || [];
+    return currentSelections.length >= 2; // Require at least 2 selections per step
+  };
 
   const getStepIcon = (stepNumber: number) => {
-    switch (stepNumber) {
-      case 1:
-        return <Film className="h-5 w-5" />
-      case 2:
-        return <UtensilsCrossed className="h-5 w-5" />
-      case 3:
-        return <MapPin className="h-5 w-5" />
-      default:
-        return null
-    }
-  }
+    const stepData = onboardingData[stepNumber as keyof typeof onboardingData];
+    const IconComponent = stepData.icon;
+    const isCompleted = selections[stepNumber]?.length >= 2;
+    const isCurrent = stepNumber === currentStep;
+
+    return (
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+          isCompleted
+            ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg"
+            : isCurrent
+            ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-lg animate-pulse"
+            : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+        }`}
+      >
+        {isCompleted ? (
+          <CheckCircle className="h-5 w-5" />
+        ) : (
+          <IconComponent className="h-5 w-5" />
+        )}
+      </div>
+    );
+  };
 
   const getStepTitle = () => {
-    switch (step) {
-      case 1:
-        return "Pick a favorite film"
-      case 2:
-        return "Choose your favorite cuisine"
-      case 3:
-        return "Select a dream destination"
-      default:
-        return ""
-    }
-  }
+    const stepData = onboardingData[currentStep as keyof typeof onboardingData];
+    return stepData.title;
+  };
+
+  const getStepSubtitle = () => {
+    const stepData = onboardingData[currentStep as keyof typeof onboardingData];
+    return stepData.subtitle;
+  };
 
   const getCurrentData = () => {
-    switch (step) {
-      case 1:
-        return SAMPLE_FILMS
-      case 2:
-        return SAMPLE_CUISINES
-      case 3:
-        return SAMPLE_DESTINATIONS
-      default:
-        return []
-    }
-  }
+    const stepData = onboardingData[currentStep as keyof typeof onboardingData];
+    return stepData.data;
+  };
 
   const getCurrentSelection = () => {
-    switch (step) {
-      case 1:
-        return selectedFilm
-      case 2:
-        return selectedCuisine
-      case 3:
-        return selectedDestination
-      default:
-        return ""
-    }
-  }
+    return selections[currentStep] || [];
+  };
 
   const handleSelection = (id: string) => {
-    switch (step) {
-      case 1:
-        setSelectedFilm(id)
-        break
-      case 2:
-        setSelectedCuisine(id)
-        break
-      case 3:
-        setSelectedDestination(id)
-        break
-    }
-  }
+    const currentSelections = getCurrentSelection();
+    const newSelections = currentSelections.includes(id)
+      ? currentSelections.filter((item) => item !== id)
+      : [...currentSelections, id];
+
+    setSelections((prev) => ({
+      ...prev,
+      [currentStep]: newSelections,
+    }));
+  };
+
+  const totalSteps = Object.keys(onboardingData).length;
+  const progress = (currentStep / totalSteps) * 100;
+  const completedSteps = Object.keys(selections).filter(
+    (step) => selections[parseInt(step)]?.length >= 2
+  ).length;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-300/30 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-blue-300/30 rounded-full blur-3xl animate-float-delayed"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
-      </div>
-
-      <Card className="w-full max-w-4xl relative z-10 border-0 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl animate-scale-in">
-        <CardHeader className="text-center pb-8">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="relative">
-              <Sparkles className="h-12 w-12 text-purple-600 animate-pulse" />
-              <div className="absolute inset-0 h-12 w-12 text-purple-400 animate-ping opacity-30">
-                <Sparkles className="h-12 w-12" />
-              </div>
+            <div className="w-16 h-16 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Sparkles className="h-8 w-8 text-white animate-pulse" />
             </div>
           </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+            Let's Personalize Your Experience
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
+            Tell us about your tastes so we can recommend the perfect cultural
+            experiences for you
+          </p>
 
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 bg-clip-text text-transparent font-playfair mb-4">
-            Welcome to Cultural AI Concierge
-          </CardTitle>
-
-          <CardDescription className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Let's learn about your taste to provide personalized recommendations that match your unique style
-          </CardDescription>
-
-          {/* Progress Indicator */}
-          <div className="flex justify-center mt-8">
-            <div className="flex items-center space-x-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center">
-                  <div
-                    className={`
-                    relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-500
-                    ${
-                      i <= step
-                        ? "bg-gradient-to-r from-purple-500 to-blue-500 border-purple-500 text-white shadow-lg"
-                        : "border-slate-300 dark:border-slate-600 text-slate-400"
-                    }
-                  `}
-                  >
-                    {i < step ? (
-                      <div className="animate-scale-in">✓</div>
-                    ) : i === step ? (
-                      <div className="animate-pulse">{getStepIcon(i)}</div>
-                    ) : (
-                      getStepIcon(i)
-                    )}
-                  </div>
-                  {i < 3 && (
-                    <div
-                      className={`
-                      w-16 h-0.5 mx-2 transition-all duration-500
-                      ${i < step ? "bg-gradient-to-r from-purple-500 to-blue-500" : "bg-slate-200 dark:bg-slate-700"}
-                    `}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-8 px-8 pb-8">
-          <div className="animate-slide-in-up">
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center space-x-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 px-6 py-3 rounded-full">
+          {/* Progress Indicators */}
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            {[1, 2, 3, 4].map((step) => (
+              <div key={step} className="flex items-center">
                 {getStepIcon(step)}
-                <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 font-space-grotesk">
-                  {getStepTitle()}
-                </h2>
+                {step < 4 && (
+                  <div
+                    className={`w-8 h-1 mx-2 rounded-full transition-all duration-300 ${
+                      selections[step]?.length >= 2
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                        : "bg-slate-200 dark:bg-slate-700"
+                    }`}
+                  />
+                )}
               </div>
+            ))}
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full max-w-md mx-auto mb-2">
+            <Progress value={progress} className="h-2" />
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Step {currentStep} of {totalSteps} • {completedSteps} completed
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-2xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {getStepTitle()}
+            </CardTitle>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
+              {getStepSubtitle()} • Select at least 2 options
+            </p>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Selection Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {getCurrentData().map((item) => {
+                const isSelected = getCurrentSelection().includes(item.id);
+                return (
+                  <Card
+                    key={item.id}
+                    className={`cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
+                      isSelected
+                        ? "ring-2 ring-violet-500 bg-gradient-to-br from-violet-50 to-cyan-50 dark:from-violet-950/30 dark:to-cyan-950/30 shadow-lg"
+                        : "hover:shadow-md bg-white/50 dark:bg-slate-800/50"
+                    }`}
+                    onClick={() => handleSelection(item.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                            {item.name}
+                          </h3>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            {item.description}
+                          </p>
+                        </div>
+                        {isSelected && (
+                          <Badge className="bg-gradient-to-r from-violet-500 to-cyan-500 text-white border-0 ml-2">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Selected
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              {getCurrentData().map((item: any, index) => (
-                <Card
-                  key={item.id}
-                  className={`
-                    cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group
-                    ${
-                      getCurrentSelection() === item.id
-                        ? "ring-2 ring-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 shadow-lg"
-                        : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-slate-200 dark:border-slate-700"
-                    }
-                  `}
-                  onClick={() => handleSelection(item.id)}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardContent className="p-6 text-center">
-                    <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      {item.emoji}
-                    </div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200 mb-2 font-space-grotesk">
-                      {item.name}
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-white/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400"
-                    >
-                      {item.genre || item.type || item.vibe}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {step === 3 && (
-              <div className="mt-8 max-w-md mx-auto animate-fade-in">
-                <Label htmlFor="custom-input" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Or tell us something unique about your taste:
-                </Label>
-                <Input
-                  id="custom-input"
-                  placeholder="e.g., I love hidden speakeasies and indie bookstores..."
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  className="mt-2 border-slate-200 dark:border-slate-700 focus:border-purple-500 focus:ring-purple-500/20"
-                />
+            {/* Current Selections Summary */}
+            {getCurrentSelection().length > 0 && (
+              <div className="bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-950/20 dark:to-cyan-950/20 rounded-lg p-4">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Your selections ({getCurrentSelection().length}):
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {getCurrentSelection().map((selectionId) => {
+                    const item = getCurrentData().find(
+                      (d) => d.id === selectionId
+                    );
+                    return (
+                      <Badge
+                        key={selectionId}
+                        variant="secondary"
+                        className="bg-white/80 dark:bg-slate-800/80"
+                      >
+                        {item?.name}
+                      </Badge>
+                    );
+                  })}
+                </div>
               </div>
             )}
-          </div>
 
-          <div className="flex justify-between items-center pt-8">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={step === 1}
-              className="flex items-center space-x-2 hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back</span>
-            </Button>
+            {/* Navigation */}
+            <div className="flex items-center justify-between pt-6">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="px-6"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
 
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed px-8"
-            >
-              <span className="font-medium">{step === 3 ? "Start Exploring" : "Next"}</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <div className="text-sm text-slate-500 dark:text-slate-400">
+                {getCurrentSelection().length < 2 && (
+                  <span>Select at least 2 options to continue</span>
+                )}
+              </div>
+
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isCompleting}
+                className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white px-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+              >
+                {isCompleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                    Completing...
+                  </>
+                ) : currentStep === totalSteps ? (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Complete Setup
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  )
+  );
 }

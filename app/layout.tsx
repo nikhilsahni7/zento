@@ -1,25 +1,28 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter, Playfair_Display, Space_Grotesk } from "next/font/google"
-import "./globals.css"
+import { AuthWrapper } from "@/components/auth-wrapper";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+import { Inter, Playfair_Display, Space_Grotesk } from "next/font/google";
+import type React from "react";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-})
+});
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
   display: "swap",
-})
+});
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
   display: "swap",
-})
+});
 
 export const metadata: Metadata = {
   title: "Cultural AI Concierge - Your Personal Taste-Driven Travel Companion",
@@ -43,13 +46,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html
@@ -72,11 +75,19 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/30">
-          {children}
-        </div>
+      <body
+        className={`${inter.className} antialiased`}
+        suppressHydrationWarning
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthWrapper>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/30">
+              {children}
+            </div>
+            <Toaster />
+          </AuthWrapper>
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
