@@ -1,8 +1,6 @@
 "use client";
 
-import { ItineraryCard } from "@/components/itinerary-card";
 import { QuickReplyChips } from "@/components/quick-reply-chips";
-import { RecommendationCard } from "@/components/recommendation-card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +44,7 @@ export function ChatInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [thinkingState, setThinkingState] = useState<string>("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -56,7 +55,7 @@ export function ChatInterface({
     }
   }, [messages]);
 
-  // Speech recognition setup
+  // Voice input functionality
   useEffect(() => {
     if (isListening && "webkitSpeechRecognition" in window) {
       const recognition = new (window as any).webkitSpeechRecognition();
@@ -65,14 +64,14 @@ export function ChatInterface({
       recognition.lang = "en-US";
 
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result: any) => result.transcript)
-          .join("");
+        const transcript =
+          event.results[event.results.length - 1][0].transcript;
+        setInput(transcript);
+      };
 
-        if (event.results[event.results.length - 1].isFinal) {
-          setInput(transcript);
-        }
+      recognition.onend = () => {
+        // Recognition ended
+        console.log("Speech recognition ended");
       };
 
       recognition.start();
@@ -80,58 +79,82 @@ export function ChatInterface({
     }
   }, [isListening]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
+      content: content.trim(),
       role: "user",
-      content: input,
       timestamp: new Date(),
-      type: "text",
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
+    // Show thinking states
+    const thinkingStates = [
+      "🧠 Understanding your cultural preferences...",
+      "🔍 Searching through Qloo's recommendation engine...",
+      "✨ Personalizing recommendations just for you...",
+      "🎨 Crafting the perfect response...",
+    ];
+
+    let stateIndex = 0;
+    const thinkingInterval = setInterval(() => {
+      if (stateIndex < thinkingStates.length) {
+        setThinkingState(thinkingStates[stateIndex]);
+        stateIndex++;
+      }
+    }, 1500);
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: input,
-          affinities: userAffinities,
-          history: messages.slice(-5), // Send last 5 messages for context
+          message: content,
+          history: messages.slice(-4), // Last 4 messages for context
         }),
       });
 
+      clearInterval(thinkingInterval);
+      setThinkingState("");
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get response");
+      }
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: "assistant",
         content: data.content,
+        role: "assistant",
         timestamp: new Date(),
-        type: data.type || "text",
         data: data.data,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Update affinities if new ones were detected
-      if (data.newAffinities) {
-        onAffinitiesUpdate([...userAffinities, ...data.newAffinities]);
+      // Update affinities if new ones were discovered
+      if (data.data?.debug?.newTagsFound > 0) {
+        // Could update user affinities here if needed
       }
-    } catch (error: any) {
-      const errMsg = error?.message || error?.toString?.() || "Unknown error";
-      toast({
-        title: "Chat error",
-        description: errMsg.includes("OPENAI_API_KEY")
-          ? "OpenAI key missing on the server. Add it to your environment variables."
-          : errMsg,
-        variant: "destructive",
-      });
+    } catch (error) {
+      clearInterval(thinkingInterval);
+      setThinkingState("");
+
+      console.error("Chat error:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content:
+          "I'm having trouble processing that request right now. Could you try asking in a different way?",
+        role: "assistant",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +162,7 @@ export function ChatInterface({
 
   const handleQuickReply = (reply: string) => {
     setInput(reply);
-    handleSend();
+    handleSendMessage(reply);
   };
 
   const speakMessage = (text: string) => {
@@ -223,84 +246,91 @@ export function ChatInterface({
                     />
                   </div>
 
-                  <div className="space-y-3 flex-1">
-                    {/* Enhanced Message Bubbles */}
-                    <Card
-                      className={`relative overflow-hidden transition-all duration-500 hover:shadow-lg group-hover:scale-[1.02] ${
+                  {/* Message Content */}
+                  <div className="flex-1">
+                    <div
+                      className={`prose prose-sm max-w-none ${
                         message.role === "user"
-                          ? "bg-gradient-to-r from-indigo-600 to-blue-700 text-white shadow-indigo-glow border-0"
-                          : "bg-gradient-to-r from-white/90 to-slate-50/90 dark:from-slate-800/90 dark:to-slate-700/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50"
+                          ? "prose-invert text-white"
+                          : "text-slate-800 dark:text-slate-200"
                       }`}
                     >
-                      {/* Shimmer effect for AI messages */}
-                      {message.role === "assistant" && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 animate-shimmer" />
-                      )}
+                      {/* Split content by lines and format appropriately */}
+                      {message.content.split("\n").map((line, lineIndex) => {
+                        // Handle empty lines
+                        if (line.trim() === "") {
+                          return <br key={lineIndex} />;
+                        }
 
-                      <CardContent className="p-4 relative z-10">
-                        {message.type === "recommendations" && message.data ? (
-                          <div className="space-y-4">
-                            <p className="text-sm font-medium">
-                              {message.content}
-                            </p>
-                            <div className="grid gap-4">
-                              {message.data.recommendations?.map(
-                                (rec: any, index: number) => (
-                                  <div
-                                    key={index}
-                                    className="animate-fade-in-up"
-                                    style={{
-                                      animationDelay: `${index * 100}ms`,
-                                    }}
+                        // Handle bullet points with 👉
+                        if (line.trim().startsWith("👉")) {
+                          return (
+                            <div
+                              key={lineIndex}
+                              className="flex items-start space-x-2 mt-2 p-2 bg-violet-50 dark:bg-violet-950/30 rounded-lg"
+                            >
+                              <span className="text-violet-600 dark:text-violet-400 text-sm font-medium">
+                                {line.trim()}
+                              </span>
+                            </div>
+                          );
+                        }
+
+                        // Handle lines with **bold** text
+                        if (line.includes("**")) {
+                          const parts = line.split("**");
+                          return (
+                            <p key={lineIndex} className="mb-2">
+                              {parts.map((part, partIndex) =>
+                                partIndex % 2 === 1 ? (
+                                  <strong
+                                    key={partIndex}
+                                    className="font-semibold text-violet-700 dark:text-violet-300"
                                   >
-                                    <RecommendationCard recommendation={rec} />
-                                  </div>
+                                    {part}
+                                  </strong>
+                                ) : (
+                                  <span key={partIndex}>{part}</span>
                                 )
                               )}
-                            </div>
-                          </div>
-                        ) : message.type === "itinerary" && message.data ? (
-                          <div className="space-y-4">
-                            <p className="text-sm font-medium">
-                              {message.content}
                             </p>
-                            <div className="animate-fade-in-up">
-                              <ItineraryCard itinerary={message.data} />
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-sm leading-relaxed">
-                            {message.content}
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
+                          );
+                        }
 
-                    {/* Enhanced Message Actions */}
-                    {message.role === "assistant" && (
-                      <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            isSpeaking
-                              ? stopSpeaking()
-                              : speakMessage(message.content)
-                          }
-                          className="h-8 px-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 border border-slate-200/50 dark:border-slate-600/50 transition-all duration-300 hover:scale-105"
-                        >
-                          {isSpeaking ? (
-                            <VolumeX className="h-3 w-3 text-rose-500" />
-                          ) : (
-                            <Volume2 className="h-3 w-3 text-indigo-600" />
-                          )}
-                        </Button>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    )}
+                        // Regular text
+                        return (
+                          <p key={lineIndex} className="mb-2">
+                            {line}
+                          </p>
+                        );
+                      })}
+                    </div>
                   </div>
+
+                  {/* Enhanced Message Actions */}
+                  {message.role === "assistant" && (
+                    <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          isSpeaking
+                            ? stopSpeaking()
+                            : speakMessage(message.content)
+                        }
+                        className="h-8 px-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 border border-slate-200/50 dark:border-slate-600/50 transition-all duration-300 hover:scale-105"
+                      >
+                        {isSpeaking ? (
+                          <VolumeX className="h-3 w-3 text-rose-500" />
+                        ) : (
+                          <Volume2 className="h-3 w-3 text-indigo-600" />
+                        )}
+                      </Button>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {message.timestamp.toLocaleTimeString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -345,9 +375,47 @@ export function ChatInterface({
         </ScrollArea>
 
         {/* Enhanced Quick Reply Chips */}
-        <div className="p-6 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm relative z-10">
-          <QuickReplyChips onReply={handleQuickReply} />
-        </div>
+        {/* AI Thinking State */}
+        {isLoading && thinkingState && (
+          <div className="flex items-center justify-start mb-4">
+            <div className="bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-950/30 dark:to-cyan-950/30 rounded-lg p-4 max-w-md animate-pulse">
+              <div className="flex items-center space-x-2">
+                <div
+                  className="w-2 h-2 bg-violet-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-violet-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-violet-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                ></div>
+                <span className="text-sm text-violet-700 dark:text-violet-300 ml-2">
+                  {thinkingState}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Reply Chips - Show when no messages or after assistant response */}
+        {(messages.length === 0 ||
+          (messages[messages.length - 1]?.role === "assistant" &&
+            !isLoading)) && (
+          <QuickReplyChips
+            onReply={handleQuickReply}
+            userAffinities={userAffinities}
+            userCity={
+              userAffinities.find(
+                (tag) => tag.includes("new_delhi") || tag.includes("delhi")
+              )
+                ? "New Delhi"
+                : undefined
+            }
+          />
+        )}
 
         {/* Enhanced Input Area */}
         <div className="p-6 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm relative z-10">
@@ -361,7 +429,9 @@ export function ChatInterface({
                     ? "🎤 Listening for your voice..."
                     : "Ask me about restaurants, travel, or cultural experiences..."
                 }
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && handleSendMessage(input)
+                }
                 disabled={isLoading}
                 className={`pr-12 transition-all duration-300 ${
                   isListening
@@ -390,7 +460,7 @@ export function ChatInterface({
             </div>
 
             <Button
-              onClick={handleSend}
+              onClick={() => handleSendMessage(input)}
               disabled={isLoading || !input.trim()}
               className="bg-gradient-to-r from-indigo-600 to-rose-500 hover:from-indigo-700 hover:to-rose-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:scale-100 px-6 relative overflow-hidden group"
             >

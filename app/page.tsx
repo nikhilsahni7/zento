@@ -31,40 +31,42 @@ export default function App() {
     }
   }, [mounted, isLoading, session, router]);
 
-  // Handle onboarding state based on authentication
+  // Fetch onboarding status from server
   useEffect(() => {
-    if (session?.user) {
-      const onboardingKey = `onboarding_complete_${session.user.id}`;
-      const affinitiesKey = `user_affinities_${session.user.id}`;
-
-      const onboardingComplete = localStorage.getItem(onboardingKey);
-      if (onboardingComplete === "true") {
-        setIsOnboarded(true);
-        const storedAffinities = localStorage.getItem(affinitiesKey);
-        if (storedAffinities) {
-          try {
-            const affinities = JSON.parse(storedAffinities);
-            setUserAffinities(affinities);
-          } catch (error) {
-            console.error("Error parsing stored affinities:", error);
-          }
-        }
-      } else {
-        // User hasn't completed onboarding, ensure they see it
-        setIsOnboarded(false);
+    const fetchStatus = async () => {
+      if (!session?.user) return;
+      try {
+        const res = await fetch("/api/profile/status");
+        const data = await res.json();
+        setIsOnboarded(data.hasProfile);
+        setUserAffinities(data.affinityTags || []);
+      } catch (error) {
+        console.error("Failed to fetch profile status", error);
       }
-    }
+    };
+    fetchStatus();
   }, [session]);
 
-  const handleOnboardingComplete = (affinities: any[]) => {
-    if (session?.user) {
-      const onboardingKey = `onboarding_complete_${session.user.id}`;
-      const affinitiesKey = `user_affinities_${session.user.id}`;
+  const handleOnboardingComplete = async (answers: {
+    movie: string;
+    artist: string;
+    city: string;
+  }) => {
+    try {
+      const response = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers }),
+      });
 
-      setUserAffinities(affinities);
-      setIsOnboarded(true);
-      localStorage.setItem(onboardingKey, "true");
-      localStorage.setItem(affinitiesKey, JSON.stringify(affinities));
+      if (!response.ok) {
+        throw new Error("Failed to complete onboarding");
+      }
+
+      // Refresh to update the onboarded state
+      window.location.reload();
+    } catch (error) {
+      console.error("Onboarding completion error:", error);
     }
   };
 

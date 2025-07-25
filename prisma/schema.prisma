@@ -25,6 +25,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  tasteProfile   TasteProfile?
 
   @@map("user")
 }
@@ -75,4 +76,17 @@ model Verification {
 
   @@unique([identifier, value])
   @@map("verification")
+}
+
+// Added for Cultural Compass personalization (Taste Triangle)
+model TasteProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  affinityTags String[]
+  homeCity     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("taste_profile")
 }

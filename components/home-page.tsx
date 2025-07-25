@@ -372,21 +372,29 @@ export default function HomePage({
                     </span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-3">
-                    {userAffinities.slice(0, 4).map((affinity, index) => (
-                      <Badge
-                        key={index}
-                        className="bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-indigo-200/50 dark:border-indigo-700/50 px-4 py-2 text-sm font-medium animate-fade-in hover:scale-105 transition-all duration-300"
-                        style={{ animationDelay: `${1000 + index * 150}ms` }}
-                      >
-                        <span className="capitalize font-semibold">
-                          {affinity.type}
-                        </span>
-                        <span className="mx-2 text-indigo-500 dark:text-indigo-400">
-                          •
-                        </span>
-                        <span>{affinity.id.replace("-", " ")}</span>
-                      </Badge>
-                    ))}
+                    {userAffinities.slice(0, 4).map((affinity, index) => {
+                      // Parse Qloo URN to extract meaningful display name
+                      // Example: "urn:tag:genre:media:action" -> "Action"
+                      const displayName =
+                        typeof affinity === "string"
+                          ? affinity
+                              .replace(/^urn:tag:[^:]+:/, "")
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())
+                          : affinity?.name || affinity?.id || "Unknown";
+
+                      return (
+                        <Badge
+                          key={index}
+                          className="bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-indigo-200/50 dark:border-indigo-700/50 px-4 py-2 text-sm font-medium animate-fade-in hover:scale-105 transition-all duration-300"
+                          style={{ animationDelay: `${1000 + index * 150}ms` }}
+                        >
+                          <span className="capitalize font-semibold">
+                            {displayName}
+                          </span>
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

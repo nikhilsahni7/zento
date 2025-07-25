@@ -1,23 +1,25 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { X, TrendingUp, Brain } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Brain, TrendingUp, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PersonalizationBannerProps {
-  affinities: any[]
+  affinities: any[];
 }
 
-export function PersonalizationBanner({ affinities }: PersonalizationBannerProps) {
-  const [isVisible, setIsVisible] = useState(true)
-  const [personalizedMessage, setPersonalizedMessage] = useState("")
-  const [isAnimating, setIsAnimating] = useState(false)
+export function PersonalizationBanner({
+  affinities,
+}: PersonalizationBannerProps) {
+  const [isVisible, setIsVisible] = useState(true);
+  const [personalizedMessage, setPersonalizedMessage] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (affinities.length > 0) {
-      setIsAnimating(true)
+      setIsAnimating(true);
       const messages = [
         "I'm learning you have exquisite taste in cinema and cuisine ✨",
         "Your cultural preferences are helping me curate better recommendations 🎭",
@@ -25,21 +27,23 @@ export function PersonalizationBanner({ affinities }: PersonalizationBannerProps
         "Your taste profile suggests you enjoy immersive cultural experiences 🌟",
         "Based on your preferences, I can suggest amazing hidden gems 💎",
         "Your sophisticated taste is opening doors to unique discoveries 🚪",
-      ]
-      setPersonalizedMessage(messages[Math.floor(Math.random() * messages.length)])
+      ];
+      setPersonalizedMessage(
+        messages[Math.floor(Math.random() * messages.length)]
+      );
 
-      setTimeout(() => setIsAnimating(false), 1000)
+      setTimeout(() => setIsAnimating(false), 1000);
     }
-  }, [affinities])
+  }, [affinities]);
 
-  if (!isVisible || !personalizedMessage) return null
+  if (!isVisible || !personalizedMessage) return null;
 
   return (
     <div className="container py-4">
       <Card
         className={`
         relative overflow-hidden border-0 shadow-lg
-        bg-gradient-to-r from-violet-50/90 via-purple-50/90 to-cyan-50/90 
+        bg-gradient-to-r from-violet-50/90 via-purple-50/90 to-cyan-50/90
         dark:from-violet-950/30 dark:via-purple-950/30 dark:to-cyan-950/30
         backdrop-blur-sm
         ${isAnimating ? "animate-pulse-gentle" : ""}
@@ -70,26 +74,38 @@ export function PersonalizationBanner({ affinities }: PersonalizationBannerProps
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {affinities.slice(0, 3).map((affinity, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className={`
-                      text-xs font-medium px-3 py-1 
-                      bg-white/80 dark:bg-slate-800/80 
-                      text-slate-700 dark:text-slate-300
-                      border border-violet-200/50 dark:border-violet-700/50
-                      hover:bg-white/90 dark:hover:bg-slate-800/90
-                      transition-all duration-300
-                      animate-fade-in
-                    `}
-                    style={{ animationDelay: `${index * 200}ms` }}
-                  >
-                    <span className="capitalize">{affinity.type}</span>
-                    <span className="mx-1 text-violet-500 dark:text-violet-400">•</span>
-                    <span className="font-semibold">{affinity.id.replace("-", " ")}</span>
-                  </Badge>
-                ))}
+                {affinities.slice(0, 3).map((affinity, index) => {
+                  // Parse Qloo URN to extract meaningful display name
+                  // Example: "urn:tag:genre:media:action" -> "Action"
+                  const displayName =
+                    typeof affinity === "string"
+                      ? affinity
+                          .replace(/^urn:tag:[^:]+:/, "")
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())
+                      : affinity?.name || affinity?.id || "Unknown";
+
+                  return (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className={`
+                        text-xs px-3 py-1
+                        bg-white/60 dark:bg-slate-800/60
+                        text-slate-700 dark:text-slate-300
+                        border border-violet-200/50 dark:border-violet-700/50
+                        hover:bg-white/90 dark:hover:bg-slate-800/90
+                        transition-all duration-300
+                        animate-fade-in
+                      `}
+                      style={{ animationDelay: `${index * 200}ms` }}
+                    >
+                      <span className="capitalize font-semibold">
+                        {displayName}
+                      </span>
+                    </Badge>
+                  );
+                })}
                 {affinities.length > 3 && (
                   <Badge
                     variant="outline"
@@ -114,5 +130,5 @@ export function PersonalizationBanner({ affinities }: PersonalizationBannerProps
         </div>
       </Card>
     </div>
-  )
+  );
 }

@@ -69,22 +69,28 @@ export default function ProfilePage() {
     }
   };
 
-  const getAffinitiesByType = (type: string) => {
-    return userAffinities.filter((affinity) => affinity.type === type);
+  // Since affinities are now Qloo URN strings, we'll group them by extracting the category
+  const getAffinitiesByCategory = (category: string) => {
+    return userAffinities.filter((affinity) => {
+      if (typeof affinity !== "string") return false;
+      return affinity.includes(category);
+    });
   };
 
-  const getIconForType = (type: string) => {
-    switch (type) {
-      case "movie_genre":
+  const getIconForCategory = (category: string) => {
+    switch (category) {
+      case "media":
+      case "genre":
         return Film;
       case "cuisine":
         return Utensils;
-      case "music_genre":
+      case "music":
         return Music;
-      case "travel_destination":
+      case "place":
+      case "location":
         return MapPin;
       default:
-        return Palette;
+        return Sparkles;
     }
   };
 
@@ -129,10 +135,12 @@ export default function ProfilePage() {
   }
 
   const affinityTypes = [
-    "movie_genre",
+    "media",
     "cuisine",
-    "music_genre",
-    "travel_destination",
+    "music",
+    "place",
+    "genre",
+    "location",
   ];
 
   return (
@@ -217,7 +225,7 @@ export default function ProfilePage() {
                       <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                         {
                           affinityTypes.filter(
-                            (type) => getAffinitiesByType(type).length > 0
+                            (type) => getAffinitiesByCategory(type).length > 0
                           ).length
                         }
                       </div>
@@ -294,10 +302,10 @@ export default function ProfilePage() {
                 ) : (
                   <div className="space-y-6">
                     {affinityTypes.map((type) => {
-                      const typeAffinities = getAffinitiesByType(type);
+                      const typeAffinities = getAffinitiesByCategory(type);
                       if (typeAffinities.length === 0) return null;
 
-                      const IconComponent = getIconForType(type);
+                      const IconComponent = getIconForCategory(type);
 
                       return (
                         <div key={type} className="space-y-3">
@@ -318,7 +326,7 @@ export default function ProfilePage() {
                                 key={index}
                                 className="bg-gradient-to-r from-violet-50 to-cyan-50 dark:from-violet-950/30 dark:to-cyan-950/30 text-slate-700 dark:text-slate-300 border border-violet-200/50 dark:border-violet-700/50 px-3 py-1"
                               >
-                                {affinity.name}
+                                {affinity}
                               </Badge>
                             ))}
                           </div>

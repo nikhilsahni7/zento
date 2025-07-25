@@ -1,0 +1,138 @@
+import { GoogleGenAI } from "@google/genai";
+import { z } from "zod";
+
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY ?? "" });
+
+export async function extractKeywords(title: string): Promise<string[]> {
+  const prompt = `You are a cultural analyst. Extract EXACTLY 3-5 key genres, themes, or keywords that BEST describe the following title. Focus on the most important and specific aspects only. Respond only with a JSON array of strings.
+
+Title: ${title}
+
+Guidelines:
+- Maximum 5 keywords
+- Focus on core genres/themes, not every possible association
+- Prefer specific over generic terms
+- Avoid redundant or overlapping keywords
+
+JSON array:`;
+
+  const response = await genAI.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
+
+  const text = response.text || "";
+  try {
+    const keywords = JSON.parse(text);
+    // Limit to maximum 5 keywords to prevent over-extraction
+    return keywords.slice(0, 5);
+  } catch {
+    // fallback naive split - also limit to 5
+    return text
+      .replace(/\[|\]|"/g, "")
+      .split(/,|\n/)
+      .map((s: any) => s.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+  }
+}
+
+export async function formatRecommendations(rawJson: any, userContext: string) {
+  const entities = rawJson.results?.entities || rawJson.results?.insights || [];
+
+  if (entities.length === 0) {
+    return "I couldn't find specific recommendations matching your exact preferences right now. Let me try a different approach - could you tell me more about what you're looking for? For example, a specific cuisine, neighborhood, or type of experience?";
+  }
+
+  const prompt = `You are the Cultural Compass, an enthusiastic and insightful AI cultural concierge with deep knowledge of global culture. You have a warm, engaging personality and you LOVE helping people discover amazing experiences.
+
+CONTEXT: The user has these cultural preferences: ${userContext}
+
+TASK: Create an absolutely engaging, personalized response about these recommendations. Make it feel like you're a knowledgeable friend who's excited to share insider knowledge.
+
+REQUIREMENTS:
+1. Start with an engaging, personalized greeting that acknowledges their taste
+2. Present each recommendation with:
+   - A catchy, descriptive title (not just the name)
+   - WHY they'll love it based on their specific interests
+   - A vivid description that makes them want to visit
+   - Key highlights (cuisine, ambiance, must-try items, etc.)
+3. Use emojis appropriately to make it visually appealing
+4. End with 2-3 quick-action suggestions prefixed with "👉"
+5. Keep the tone conversational, enthusiastic, and knowledgeable
+
+STYLE: Think "trusted friend + cultural expert" - knowledgeable but never pretentious, excited but not over-the-top.
+
+RECOMMENDATION DATA:
+${JSON.stringify(entities.slice(0, 5), null, 2)}
+
+Create your response:`;
+
+  const response = await genAI.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
+
+  return response.text || "I found some great recommendations for you! Let me get the details formatted properly.";
+}
+
+// ---------- INTENT PARSING (Gemini Prompt #1) ----------
+
+const intentSchema = z.object({
+  intent: z.enum(["recommendation", "itinerary", "refine"]),
+  target_category: z.string(), // e.g., "urn:entity:book"
+  signals: z.object({
+    tags_to_find: z.array(z.string()),
+    location_query: z.string().nullable(),
+  }),
+});
+
+export type ParsedIntent = z.infer<typeof intentSchema>;
+
+interface IntentPromptParams {
+  message: string;
+  affinityKeywords: string[]; // human-readable names
+  history: { role: "user" | "assistant"; content: string }[];
+}
+
+export async function parseIntent({
+  message,
+  affinityKeywords,
+  history,
+}: IntentPromptParams): Promise<ParsedIntent> {
+  const prompt = `You are an expert AI assistant that translates natural language into a structured JSON command for a recommendation API.
+
+Your Task: Respond ONLY with a JSON object matching this exact schema (no markdown): { "intent": string, "target_category": string, "signals": { "tags_to_find": string[], "location_query": string | null } }.
+
+• intent: "recommendation", "itinerary", or "refine".
+• target_category: a valid Qloo URN like "urn:entity:book" or "urn:entity:place".
+• tags_to_find: new keywords present in the user's latest message (if any).
+
+User's Taste Profile (Keywords): ${JSON.stringify(affinityKeywords)}
+Conversation History (last 4 messages): ${history
+    .slice(-4)
+    .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+    .join("\n")}
+
+User's Latest Message: "${message}"
+
+JSON Command Output:`;
+
+  const response = await genAI.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+  });
+
+  const text = response.text?.trim() || "";
+
+  try {
+    return intentSchema.parse(JSON.parse(text));
+  } catch (_err) {
+    // Fallback: default to recommendation with no extra tags
+    return {
+      intent: "recommendation",
+      target_category: "urn:entity:place",
+      signals: { tags_to_find: [], location_query: null },
+    };
+  }
+}
