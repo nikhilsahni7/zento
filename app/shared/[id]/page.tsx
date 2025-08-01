@@ -1,34 +1,36 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface SharedItineraryPageProps {
   params: {
-    id: string
-  }
+    id: string;
+  };
 }
 
-export default function SharedItineraryPage({ params }: SharedItineraryPageProps) {
-  const [itinerary, setItinerary] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default function SharedItineraryPage({
+  params,
+}: SharedItineraryPageProps) {
+  const [itinerary, setItinerary] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
       // Decode the shared itinerary data
-      const decodedData = atob(params.id)
-      const itineraryData = JSON.parse(decodedData)
-      setItinerary(itineraryData)
+      const decodedData = atob(params.id);
+      const itineraryData = JSON.parse(decodedData);
+      setItinerary(itineraryData);
     } catch (error) {
-      console.error("Failed to decode shared itinerary:", error)
+      console.error("Failed to decode shared itinerary:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [params.id])
+  }, [params.id]);
 
   if (loading) {
     return (
@@ -38,7 +40,7 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
           <p>Loading shared itinerary...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!itinerary) {
@@ -46,7 +48,9 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Itinerary Not Found</h1>
-          <p className="text-muted-foreground mb-4">The shared itinerary could not be loaded.</p>
+          <p className="text-muted-foreground mb-4">
+            The shared itinerary could not be loaded.
+          </p>
           <Link href="/">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -55,7 +59,7 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -98,7 +102,9 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
                     {day.day}
                   </div>
                   <h3 className="font-semibold">Day {day.day}</h3>
-                  <span className="text-sm text-muted-foreground">{day.date}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {day.date}
+                  </span>
                 </div>
 
                 <div className="space-y-3">
@@ -113,7 +119,9 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
                               {activity.type}
                             </Badge>
                           </div>
-                          <span className="text-xs text-muted-foreground">{activity.duration}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {activity.duration}
+                          </span>
                         </div>
 
                         <h4 className="font-semibold mb-1">{activity.name}</h4>
@@ -121,7 +129,9 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
                           <MapPin className="h-3 w-3 mr-1" />
                           {activity.location}
                         </div>
-                        <p className="text-sm text-muted-foreground">{activity.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {activity.description}
+                        </p>
                       </CardContent>
                     </Card>
                   ))}
@@ -131,15 +141,15 @@ export default function SharedItineraryPage({ params }: SharedItineraryPageProps
 
             <div className="pt-6 border-t text-center">
               <p className="text-sm text-muted-foreground mb-4">
-                Want to create your own personalized cultural itinerary?
+                Want to create your own personalized Zento itinerary?
               </p>
               <Link href="/">
-                <Button size="lg">Start Your Cultural Journey</Button>
+                <Button size="lg">Start Your Zento Journey</Button>
               </Link>
             </div>
           </CardContent>
         </Card>
       </main>
     </div>
-  )
+  );
 }

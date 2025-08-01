@@ -44,7 +44,7 @@ export async function formatRecommendations(rawJson: any, userContext: string) {
     return "I couldn't find specific recommendations matching your exact preferences right now. Let me try a different approach - could you tell me more about what you're looking for? For example, a specific cuisine, neighborhood, or type of experience?";
   }
 
-  const prompt = `You are the Cultural Compass, an enthusiastic and insightful AI cultural concierge with deep knowledge of global culture. You have a warm, engaging personality and you LOVE helping people discover amazing experiences.
+  const prompt = `You are Zento, an enthusiastic and insightful AI cultural concierge with deep knowledge of global culture. You have a warm, engaging personality and you LOVE helping people discover amazing experiences.
 
 CONTEXT: The user has these cultural preferences: ${userContext}
 

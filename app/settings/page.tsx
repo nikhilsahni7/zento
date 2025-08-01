@@ -75,7 +75,7 @@ export default function SettingsPage() {
             Settings
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400">
-            Customize your Cultural AI Concierge experience
+            Customize your Zento experience
           </p>
         </div>
 

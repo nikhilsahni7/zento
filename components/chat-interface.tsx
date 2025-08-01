@@ -8,7 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, Mic, Send, Sparkles, User, Volume2, VolumeX } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { Bot, Mic, Send, Sparkles, Volume2, VolumeX } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 interface Message {
@@ -16,7 +18,13 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  type?: "text" | "recommendations" | "itinerary";
+  type?:
+    | "text"
+    | "recommendations"
+    | "itinerary"
+    | "analysis"
+    | "trending"
+    | "error";
   data?: any;
 }
 
@@ -31,12 +39,13 @@ export function ChatInterface({
   isListening,
   onAffinitiesUpdate,
 }: ChatInterfaceProps) {
+  const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm your Cultural AI Concierge. Based on your taste profile, I can help you discover amazing restaurants, plan cultural itineraries, or find experiences that match your style. What would you like to explore today?",
+        "Hello! I'm your Zento AI Assistant. Based on your taste profile, I can help you discover amazing restaurants, plan cultural itineraries, or find experiences that match your style. What would you like to explore today?",
       timestamp: new Date(),
       type: "text",
     },
@@ -47,6 +56,17 @@ export function ChatInterface({
   const [thinkingState, setThinkingState] = useState<string>("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Get user's first name for avatar
+  const getUserInitial = () => {
+    if (session?.user?.name) {
+      return session.user.name.charAt(0).toUpperCase();
+    }
+    if (session?.user?.email) {
+      return session.user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -133,12 +153,13 @@ export function ChatInterface({
         content: data.content,
         role: "assistant",
         timestamp: new Date(),
+        type: data.type || "text",
         data: data.data,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Update affinities if new ones were discovered
+      // Update affinities if new ones were discovered (future: for feedback)
       if (data.data?.debug?.newTagsFound > 0) {
         // Could update user affinities here if needed
       }
@@ -153,6 +174,7 @@ export function ChatInterface({
           "I'm having trouble processing that request right now. Could you try asking in a different way?",
         role: "assistant",
         timestamp: new Date(),
+        type: "error",
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -193,6 +215,46 @@ export function ChatInterface({
         </div>
       )}
 
+      {/* Enhanced Visual Context Images */}
+      <div className="mb-6 flex justify-center space-x-4">
+        <div className="relative w-16 h-16 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 cursor-pointer group">
+          <Image
+            src="/c.png"
+            alt="Coffee & Dining"
+            fill
+            className="object-contain"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-slate-600 dark:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+            Coffee & Dining
+          </div>
+        </div>
+        <div className="relative w-16 h-16 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 cursor-pointer group">
+          <Image
+            src="/Book lover-amico.png"
+            alt="Books & Culture"
+            fill
+            className="object-contain"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-indigo-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-slate-600 dark:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+            Books & Culture
+          </div>
+        </div>
+        <div className="relative w-16 h-16 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 cursor-pointer group">
+          <Image
+            src="/Drive-in movie theater-amico.png"
+            alt="Movies & Entertainment"
+            fill
+            className="object-contain"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-slate-600 dark:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+            Movies & Entertainment
+          </div>
+        </div>
+      </div>
+
       <Card className="h-[650px] flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-0 shadow-2xl overflow-hidden relative">
         {/* Floating background elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -218,7 +280,7 @@ export function ChatInterface({
                       : ""
                   }`}
                 >
-                  {/* Enhanced Avatars */}
+                  {/* Enhanced Avatars with User Initials */}
                   <div className="relative flex-shrink-0">
                     <Avatar
                       className={`h-10 w-10 shadow-lg transition-all duration-300 group-hover:scale-110 ${
@@ -229,7 +291,7 @@ export function ChatInterface({
                     >
                       <AvatarFallback className="text-white font-semibold">
                         {message.role === "user" ? (
-                          <User className="h-5 w-5" />
+                          getUserInitial()
                         ) : (
                           <Bot className="h-5 w-5" />
                         )}
@@ -251,7 +313,7 @@ export function ChatInterface({
                     <div
                       className={`prose prose-sm max-w-none ${
                         message.role === "user"
-                          ? "prose-invert text-white"
+                          ? "text-white bg-gradient-to-r from-indigo-600 to-blue-700 p-3 rounded-lg shadow-lg"
                           : "text-slate-800 dark:text-slate-200"
                       }`}
                     >

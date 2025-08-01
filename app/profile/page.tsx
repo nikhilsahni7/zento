@@ -163,7 +163,7 @@ export default function ProfilePage() {
             Your Profile
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400">
-            Manage your account and cultural preferences
+            Manage your account and Zento preferences
           </p>
         </div>
 

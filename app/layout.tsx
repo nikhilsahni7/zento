@@ -25,21 +25,21 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Cultural AI Concierge - Your Personal Taste-Driven Travel Companion",
+  title: "Zento - Your Personal Taste-Driven Travel Companion",
   description:
     "Discover restaurants, cultural experiences, and create personalized itineraries based on your unique taste profile. Powered by AI and cross-domain recommendations.",
   keywords:
     "cultural recommendations, AI travel planner, restaurant finder, personalized itinerary, taste-based suggestions",
-  authors: [{ name: "Cultural AI Concierge Team" }],
+  authors: [{ name: "Zento Team" }],
   openGraph: {
-    title: "Cultural AI Concierge",
+    title: "Zento",
     description: "Your personal taste-driven travel companion",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cultural AI Concierge",
+    title: "Zento",
     description: "Your personal taste-driven travel companion",
   },
   robots: {

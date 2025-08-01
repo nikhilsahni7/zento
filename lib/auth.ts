@@ -17,7 +17,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url, token }) => {
       try {
         await resend.emails.send({
-          from: "Cultural AI Concierge <hello@nikhilsahni.xyz>",
+          from: "Zento <hello@nikhilsahni.xyz>",
           to: user.email,
           subject: "Reset your password",
           html: `
@@ -28,7 +28,7 @@ export const auth = betterAuth({
                     <span style="color: white; font-size: 24px;">✨</span>
                   </div>
                   <h1 style="color: #1a202c; margin-bottom: 10px; font-size: 28px; font-weight: 700;">Reset Your Password</h1>
-                  <p style="color: #718096; font-size: 16px; line-height: 1.5;">We received a request to reset your password for your Cultural AI Concierge account</p>
+                  <p style="color: #718096; font-size: 16px; line-height: 1.5;">We received a request to reset your password for your Zento account</p>
                 </div>
 
                 <div style="background: linear-gradient(135deg, #f7fafc, #edf2f7); padding: 24px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #8B5CF6;">
@@ -63,9 +63,9 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url, token }) => {
       try {
         await resend.emails.send({
-          from: "Cultural AI Concierge <hello@nikhilsahni.xyz>",
+          from: "Zento <hello@nikhilsahni.xyz>",
           to: user.email,
-          subject: "Welcome! Verify your email to start your cultural journey",
+          subject: "Welcome! Verify your email to start your Zento journey",
           html: `
             <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
               <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
@@ -73,7 +73,7 @@ export const auth = betterAuth({
                   <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8B5CF6, #06B6D4); border-radius: 12px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
                     <span style="color: white; font-size: 24px;">✨</span>
                   </div>
-                  <h1 style="color: #1a202c; margin-bottom: 10px; font-size: 28px; font-weight: 700;">Welcome to Cultural AI Concierge!</h1>
+                  <h1 style="color: #1a202c; margin-bottom: 10px; font-size: 28px; font-weight: 700;">Welcome to Zento!</h1>
                   <p style="color: #718096; font-size: 16px; line-height: 1.5;">Your personal taste-driven travel companion awaits</p>
                 </div>
 

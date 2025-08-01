@@ -55,7 +55,7 @@ export function AuthForms() {
       { email, password },
       {
         onSuccess: () => {
-          setSuccess("Welcome back! Redirecting to your cultural journey...");
+          setSuccess("Welcome back! Redirecting to your Zento journey...");
           toast({
             title: "Welcome back! 🎉",
             description: "Successfully signed in. Redirecting you now...",
@@ -120,7 +120,7 @@ export function AuthForms() {
 
     toast({
       title: "Creating account...",
-      description: "Please wait while we set up your cultural journey.",
+      description: "Please wait while we set up your Zento journey.",
     });
 
     await authClient.signUp.email(
@@ -396,7 +396,7 @@ export function AuthForms() {
               <Sparkles className="h-8 w-8 text-white animate-pulse" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
-              Welcome to Cultural AI Concierge
+              Welcome to Zento
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-slate-400 mt-2">
               Your personal taste-driven travel companion
@@ -652,9 +652,7 @@ export function AuthForms() {
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading
-                    ? "Creating Account..."
-                    : "Start Your Cultural Journey"}
+                  {loading ? "Creating Account..." : "Start Your Zento Journey"}
                 </Button>
               </form>
 

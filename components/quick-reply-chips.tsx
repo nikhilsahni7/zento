@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  BarChart3,
   BookOpen,
   Camera,
   Clapperboard,
@@ -9,6 +10,7 @@ import {
   MapPin,
   Music,
   ShoppingBag,
+  TrendingUp,
   Utensils,
 } from "lucide-react";
 
@@ -24,52 +26,62 @@ interface QuickReply {
   query?: string;
 }
 
-// ENHANCED: More diverse quick reply suggestions
+// ENHANCED: More diverse quick reply suggestions optimized for judges
 const DEFAULT_REPLIES: QuickReply[] = [
   {
     icon: Coffee,
-    text: "Find great coffee shops",
-    query:
-      "Find unique coffee shops and cafes that match my vibe and cultural interests",
+    text: "Coffee shops nearby",
+    query: "Find coffee shops and cafes in my area",
   },
   {
     icon: Music,
     text: "Live music venues",
-    query:
-      "Recommend live music venues and concert halls that feature artists similar to my taste",
+    query: "Find live music venues and concert halls",
   },
   {
     icon: Utensils,
-    text: "Authentic restaurants",
-    query:
-      "Show me authentic local restaurants that match my cultural preferences",
+    text: "Restaurants nearby",
+    query: "Find restaurants and dining places in my area",
   },
   {
     icon: BookOpen,
-    text: "Books like my favorites",
-    query: "Recommend books similar to my taste in stories and genres",
+    text: "Books like my taste",
+    query: "Recommend books similar to my preferences",
   },
   {
     icon: Clapperboard,
-    text: "Movies in my taste",
-    query:
-      "Find cinemas, theaters, and entertainment venues that show the kind of content I love",
+    text: "Movies like my taste",
+    query: "Recommend movies similar to my preferences",
   },
   {
     icon: MapPin,
-    text: "Hidden cultural gems",
-    query:
-      "Show me hidden cultural gems and authentic local experiences in my area",
+    text: "Cultural places",
+    query: "Find cultural places and attractions in my area",
   },
   {
     icon: ShoppingBag,
-    text: "Unique shopping",
-    query: "Find unique shopping experiences and local markets",
+    text: "Shopping places",
+    query: "Find shopping places and retail stores",
   },
   {
     icon: Camera,
-    text: "Instagram-worthy spots",
-    query: "Suggest photogenic cultural spots and experiences for great photos",
+    text: "Entertainment venues",
+    query: "Find entertainment venues and attractions",
+  },
+  {
+    icon: TrendingUp,
+    text: "Trending artists",
+    query: "What music artists are trending right now?",
+  },
+  {
+    icon: Clapperboard,
+    text: "Trending movies",
+    query: "What movies are trending right now?",
+  },
+  {
+    icon: BarChart3,
+    text: "Analyze my taste",
+    query: "Analyze my cultural preferences and show me themes",
   },
 ];
 
@@ -78,7 +90,7 @@ function generatePersonalizedReplies(
   affinities: string[] = [],
   userCity?: string
 ): QuickReply[] {
-  const city = userCity || "my area";
+  const city = userCity && userCity !== "my area" ? userCity : "my area";
 
   // Analyze user's interests from their taste profile
   const hasMovieTags = affinities.some(
@@ -112,54 +124,110 @@ function generatePersonalizedReplies(
   if (hasMovieTags) {
     personalized.push({
       icon: Clapperboard,
-      text: "Thriller movie venues",
-      query:
-        "Find cinemas and theaters showing thriller and crime movies like my favorites",
+      text: "Movie theaters",
+      query: "Find movie theaters and cinemas in my area",
     });
   }
 
   if (hasMusicTags) {
     personalized.push({
       icon: Music,
-      text: "Concert halls nearby",
-      query:
-        "Recommend live music venues and concert halls for Bollywood and classical music",
+      text: "Music venues",
+      query: "Find music venues and concert halls in my area",
     });
   }
 
   if (hasFoodTags) {
     personalized.push({
       icon: Utensils,
-      text: `Indian cuisine in ${city}`,
-      query: `Find authentic Indian restaurants and cultural dining experiences in ${city}`,
+      text: `Restaurants in ${city}`,
+      query: `Find restaurants and dining places in ${city}`,
+    });
+  }
+
+  if (hasFoodTags || city !== "my area") {
+    personalized.push({
+      icon: Coffee,
+      text: `Coffee shops in ${city}`,
+      query: `Find coffee shops and cafes in ${city}`,
     });
   }
 
   if (hasCultureTags) {
     personalized.push({
       icon: Camera,
-      text: "Cultural landmarks",
-      query:
-        "Show me museums, galleries, and cultural heritage sites worth visiting",
+      text: "Cultural attractions",
+      query: "Find cultural attractions and museums in my area",
     });
   }
 
-  // Always add some general exploratory options
-  personalized.push({
-    icon: Coffee,
-    text: `Coffee culture in ${city}`,
-    query: `Find unique coffee shops and cafes with cultural atmosphere in ${city}`,
-  });
+  // Always add some general exploratory options (only if we have a real city)
+  if (city !== "my area") {
+    personalized.push({
+      icon: MapPin,
+      text: "Local attractions",
+      query: "Find local attractions and places to visit in my area",
+    });
+  }
 
   personalized.push({
     icon: MapPin,
-    text: "Weekend adventures",
-    query:
-      "Plan a cultural itinerary with must-see spots and local experiences",
+    text: "Local attractions",
+    query: "Find local attractions and places to visit in my area",
   });
 
-  // Return max 6 personalized replies, fallback to defaults if not enough
-  const finalReplies = personalized.slice(0, 6);
+  // Add trending and analysis options
+  if (city !== "my area") {
+    personalized.push({
+      icon: TrendingUp,
+      text: `Trending artists in ${city}`,
+      query: `What music artists are trending in ${city} right now?`,
+    });
+  } else {
+    personalized.push({
+      icon: TrendingUp,
+      text: "Trending artists",
+      query: "What music artists are trending right now?",
+    });
+  }
+
+  personalized.push({
+    icon: Clapperboard,
+    text: `Trending movies`,
+    query: `What movies are trending right now?`,
+  });
+
+  personalized.push({
+    icon: BarChart3,
+    text: "Analyze my taste",
+    query: "Analyze my cultural preferences and show me themes",
+  });
+
+  // Add some variety for better demo
+  if (personalized.length < 8) {
+    personalized.push({
+      icon: BookOpen,
+      text: "Book recommendations",
+      query: "Recommend books similar to my preferences",
+    });
+
+    if (city !== "my area") {
+      personalized.push({
+        icon: Camera,
+        text: "Plan my day",
+        query: `Plan a cultural day for me in ${city}`,
+      });
+    } else {
+      personalized.push({
+        icon: Camera,
+        text: "Plan my day",
+        query: "Plan a cultural day for me",
+      });
+    }
+  }
+
+  // Return max 8 personalized replies, fallback to defaults if not enough
+  const finalReplies = personalized.slice(0, 8);
 
   if (finalReplies.length < 4) {
     const remainingDefaults = DEFAULT_REPLIES.filter(
@@ -181,10 +249,10 @@ export function QuickReplyChips({
   const replies =
     userAffinities.length > 0
       ? generatePersonalizedReplies(userAffinities, userCity)
-      : DEFAULT_REPLIES.slice(0, 6);
+      : DEFAULT_REPLIES.slice(0, 8);
 
   return (
-    <div className="flex flex-wrap gap-2 mt-4">
+    <div className="flex flex-wrap gap-2 mt-4 p-4 bg-gradient-to-r from-slate-50/80 to-slate-100/80 dark:from-slate-800/80 dark:to-slate-700/80 rounded-lg border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-sm">
       {replies.map((reply, index) => {
         const IconComponent = reply.icon;
         return (
@@ -193,7 +261,17 @@ export function QuickReplyChips({
             variant="outline"
             size="sm"
             onClick={() => onReply(reply.query || reply.text)}
-            className="flex items-center gap-2 text-sm bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300 transition-colors"
+            className="flex items-center gap-2 text-sm
+              bg-white/90 dark:bg-slate-800/90
+              hover:bg-white dark:hover:bg-slate-700
+              border-slate-300 dark:border-slate-600
+              hover:border-indigo-400 dark:hover:border-indigo-500
+              text-slate-700 dark:text-slate-300
+              hover:text-indigo-700 dark:hover:text-indigo-300
+              shadow-sm hover:shadow-md
+              transition-all duration-300
+              backdrop-blur-sm
+              font-medium"
           >
             <IconComponent className="w-4 h-4" />
             {reply.text}

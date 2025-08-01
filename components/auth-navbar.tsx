@@ -40,7 +40,7 @@ export function AuthNavbar() {
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent font-space-grotesk animate-gradient-shift">
-                Cultural AI Concierge
+                Zento
               </h1>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                 Your personal taste-driven companion

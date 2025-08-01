@@ -29,6 +29,7 @@ import {
   UtensilsCrossed,
   Zap,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 interface HomePageProps {
@@ -277,7 +278,7 @@ export default function HomePage({
   return (
     <div
       ref={containerRef}
-      className="relative space-y-20 py-8 overflow-hidden"
+      className="relative space-y-20 py-4 overflow-hidden"
     >
       {/* Floating cursor effect */}
       <div
@@ -289,7 +290,7 @@ export default function HomePage({
       />
 
       {/* Enhanced Hero Section */}
-      <section className="container text-center space-y-10 relative">
+      <section className="container text-center space-y-6 relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-1/4 w-2 h-2 bg-indigo-400/30 rounded-full animate-pulse" />
@@ -297,7 +298,7 @@ export default function HomePage({
           <div className="absolute bottom-32 left-1/3 w-3 h-3 bg-amber-400/20 rounded-full animate-bounce-gentle delay-700" />
         </div>
 
-        <div className="space-y-8 max-w-5xl mx-auto relative z-10">
+        <div className="space-y-4 max-w-5xl mx-auto relative z-10">
           <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-indigo-100/80 to-blue-100/80 dark:from-indigo-950/30 dark:to-blue-950/30 px-6 py-3 rounded-full border border-indigo-200/50 dark:border-indigo-700/50 backdrop-blur-sm">
             <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
             <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 tracking-wide">
@@ -311,7 +312,7 @@ export default function HomePage({
             </Badge>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-3">
             <h1 className="text-6xl md:text-8xl font-bold font-playfair leading-tight">
               <span className="bg-gradient-to-r from-indigo-600 via-blue-700 to-rose-500 bg-clip-text text-transparent animate-gradient-shift bg-300%">
                 Discover Culture
@@ -330,6 +331,50 @@ export default function HomePage({
             </p>
           </div>
 
+          {/* Enhanced Image Gallery */}
+          <div className="flex justify-center items-center space-x-8 mb-6">
+            <div className="relative w-32 h-32 md:w-40 md:h-40 opacity-80 hover:opacity-100 transition-all duration-300 hover:scale-110">
+              <Image
+                src="/c.png"
+                alt="Coffee Shop Experience"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="relative w-32 h-32 md:w-40 md:h-40 opacity-80 hover:opacity-100 transition-all duration-300 hover:scale-110">
+              <Image
+                src="/Book lover-amico.png"
+                alt="Book Lover Experience"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="relative w-32 h-32 md:w-40 md:h-40 opacity-80 hover:opacity-100 transition-all duration-300 hover:scale-110">
+              <Image
+                src="/Drive-in movie theater-amico.png"
+                alt="Drive-in Movie Experience"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Chatbot Image */}
+          <div className="flex justify-center mb-4">
+            <div className="relative w-64 h-64 md:w-80 md:h-80">
+              <Image
+                src="/Chat bot-pana.png"
+                alt="Zento AI Assistant"
+                fill
+                className="object-contain animate-float-gentle"
+                priority
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button
               onClick={onStartChat}
@@ -338,7 +383,7 @@ export default function HomePage({
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               <MessageCircle className="mr-3 h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
-              Start Your Cultural Journey
+              Start Your Zento Journey
               <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
             </Button>
 

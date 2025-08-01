@@ -88,5 +88,21 @@ model TasteProfile {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  tagPreferences TagPreference[]
+
   @@map("taste_profile")
+}
+
+/// Stores weighted tag affinities for finer personalization
+model TagPreference {
+  id             String        @id @default(cuid())
+  profileId      String
+  profile        TasteProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  tagUrn         String
+  weight         Int           @default(10)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([profileId, tagUrn])
+  @@map("tag_preference")
 }

@@ -91,25 +91,32 @@ export function PersonalizationBanner({
                       variant="outline"
                       className={`
                         text-xs px-3 py-1
-                        bg-white/60 dark:bg-slate-800/60
+                        bg-white/80 dark:bg-slate-800/80
                         text-slate-700 dark:text-slate-300
-                        border border-violet-200/50 dark:border-violet-700/50
-                        hover:bg-white/90 dark:hover:bg-slate-800/90
+                        border border-violet-300/70 dark:border-violet-600/70
+                        hover:bg-white/95 dark:hover:bg-slate-800/95
+                        hover:border-violet-400 dark:hover:border-violet-500
                         transition-all duration-300
                         animate-fade-in
+                        font-semibold
+                        shadow-sm
                       `}
                       style={{ animationDelay: `${index * 200}ms` }}
                     >
-                      <span className="capitalize font-semibold">
-                        {displayName}
-                      </span>
+                      <span className="capitalize">{displayName}</span>
                     </Badge>
                   );
                 })}
                 {affinities.length > 3 && (
                   <Badge
                     variant="outline"
-                    className="text-xs bg-white/60 dark:bg-slate-800/60 border-violet-200/50 dark:border-violet-700/50 animate-fade-in"
+                    className="text-xs
+                      bg-white/80 dark:bg-slate-800/80
+                      border-violet-300/70 dark:border-violet-600/70
+                      text-slate-700 dark:text-slate-300
+                      hover:bg-white/95 dark:hover:bg-slate-800/95
+                      hover:border-violet-400 dark:hover:border-violet-500
+                      animate-fade-in font-semibold shadow-sm"
                     style={{ animationDelay: "600ms" }}
                   >
                     +{affinities.length - 3} more
