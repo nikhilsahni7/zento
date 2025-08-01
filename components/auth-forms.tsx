@@ -3,6 +3,7 @@
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "@/lib/auth-client";
 import {
+  ArrowLeft,
   CheckCircle,
   Eye,
   EyeOff,
@@ -301,9 +302,18 @@ export function AuthForms() {
           </Alert>
         )}
 
-        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-2xl">
+        <Card className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-0 shadow-2xl">
           <CardHeader className="text-center pb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 left-4 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              onClick={() => setShowForgotPassword(false)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <div className="w-16 h-16 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
               <Mail className="h-8 w-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
@@ -330,25 +340,14 @@ export function AuthForms() {
                   disabled={loading}
                 />
               </div>
-              <div className="flex gap-3 pt-2">
-                <Button
-                  type="submit"
-                  className="flex-1 h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading ? "Sending..." : "Send Reset Link"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 px-6 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300"
-                  onClick={() => setShowForgotPassword(false)}
-                  disabled={loading}
-                >
-                  Back
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? "Sending..." : "Send Reset Link"}
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -357,18 +356,18 @@ export function AuthForms() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-6 animate-fade-in-up">
+    <div className="w-full max-w-md mx-auto space-y-4 sm:space-y-6 animate-fade-in-up">
       {error && (
         <Alert
           variant="destructive"
           className="border-red-200 bg-red-50 dark:bg-red-950/20 animate-slide-in-down"
         >
-          <AlertDescription className="text-red-700 dark:text-red-400">
+          <AlertDescription className="text-red-700 dark:text-red-400 text-sm">
             {error}
             {error.includes("verify your email") && (
               <Button
                 variant="link"
-                className="p-0 h-auto ml-2 text-red-600 dark:text-red-400 underline hover:text-red-700 dark:hover:text-red-300"
+                className="p-0 h-auto ml-2 text-red-600 dark:text-red-400 underline hover:text-red-700 dark:hover:text-red-300 text-sm"
                 onClick={handleResendVerification}
                 disabled={loading}
               >
@@ -382,52 +381,55 @@ export function AuthForms() {
       {success && (
         <Alert className="border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 animate-slide-in-down">
           <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <AlertDescription className="text-emerald-700 dark:text-emerald-400">
+          <AlertDescription className="text-emerald-700 dark:text-emerald-400 text-sm">
             {success}
           </AlertDescription>
         </Alert>
       )}
 
-      <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-2xl overflow-hidden">
-        <CardHeader className="text-center pb-6 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 to-cyan-600/10 dark:from-violet-400/10 dark:to-cyan-400/10"></div>
+      <Card className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-0 shadow-2xl overflow-hidden">
+        <CardHeader className="text-center pb-4 sm:pb-6 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-cyan-600/5 dark:from-violet-400/5 dark:to-cyan-400/5"></div>
           <div className="relative">
-            <div className="w-16 h-16 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Sparkles className="h-8 w-8 text-white animate-pulse" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-white animate-pulse" />
             </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
+            <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-violet-600 to-cyan-600 bg-clip-text text-transparent">
               Welcome to Zento
             </CardTitle>
-            <CardDescription className="text-slate-600 dark:text-slate-400 mt-2">
+            <CardDescription className="text-slate-600 dark:text-slate-400 mt-2 text-sm">
               Your personal taste-driven travel companion
             </CardDescription>
           </div>
         </CardHeader>
 
-        <CardContent className="relative">
+        <CardContent className="relative px-4 sm:px-6">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 h-12">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 h-10 sm:h-12 rounded-lg p-1">
               <TabsTrigger
                 value="signin"
-                className="font-medium"
+                className="font-medium text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
                 disabled={loading}
               >
                 Sign In
               </TabsTrigger>
               <TabsTrigger
                 value="signup"
-                className="font-medium"
+                className="font-medium text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
                 disabled={loading}
               >
                 Sign Up
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="signin" className="mt-6 space-y-6">
+            <TabsContent
+              value="signin"
+              className="mt-4 sm:mt-6 space-y-4 sm:space-y-6"
+            >
               <form action={handleEmailSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email" className="text-sm font-medium">
@@ -438,7 +440,7 @@ export function AuthForms() {
                     name="email"
                     type="email"
                     placeholder="your.email@example.com"
-                    className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                    className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 text-sm"
                     required
                     disabled={loading}
                   />
@@ -456,7 +458,7 @@ export function AuthForms() {
                       name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10"
+                      className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10 text-sm"
                       required
                       disabled={loading}
                     />
@@ -464,7 +466,7 @@ export function AuthForms() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-11 sm:h-12 px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={loading}
                     >
@@ -478,7 +480,7 @@ export function AuthForms() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  className="w-full h-11 sm:h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] text-sm"
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -489,7 +491,7 @@ export function AuthForms() {
               <div className="text-center">
                 <Button
                   variant="link"
-                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400"
+                  className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400"
                   onClick={() => setShowForgotPassword(true)}
                   disabled={loading}
                 >
@@ -511,7 +513,7 @@ export function AuthForms() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02]"
+                className="w-full h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02] text-sm"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
               >
@@ -538,9 +540,12 @@ export function AuthForms() {
               </Button>
             </TabsContent>
 
-            <TabsContent value="signup" className="mt-6 space-y-6">
+            <TabsContent
+              value="signup"
+              className="mt-4 sm:mt-6 space-y-4 sm:space-y-6"
+            >
               <form action={handleEmailSignUp} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label
                       htmlFor="signup-name"
@@ -553,7 +558,7 @@ export function AuthForms() {
                       name="name"
                       type="text"
                       placeholder="Your name"
-                      className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                      className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 text-sm"
                       required
                       disabled={loading}
                     />
@@ -570,7 +575,7 @@ export function AuthForms() {
                       name="email"
                       type="email"
                       placeholder="your.email@example.com"
-                      className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300"
+                      className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 text-sm"
                       required
                       disabled={loading}
                     />
@@ -590,7 +595,7 @@ export function AuthForms() {
                       type={showPassword ? "text" : "password"}
                       minLength={8}
                       placeholder="At least 8 characters"
-                      className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10"
+                      className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10 text-sm"
                       required
                       disabled={loading}
                     />
@@ -598,7 +603,7 @@ export function AuthForms() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-11 sm:h-12 px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={loading}
                     >
@@ -624,7 +629,7 @@ export function AuthForms() {
                       type={showConfirmPassword ? "text" : "password"}
                       minLength={8}
                       placeholder="Confirm your password"
-                      className="h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10"
+                      className="h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 pr-10 text-sm"
                       required
                       disabled={loading}
                     />
@@ -632,7 +637,7 @@ export function AuthForms() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-11 sm:h-12 px-3 py-2 hover:bg-transparent"
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
@@ -648,7 +653,7 @@ export function AuthForms() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  className="w-full h-11 sm:h-12 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] text-sm"
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -670,7 +675,7 @@ export function AuthForms() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02]"
+                className="w-full h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02] text-sm"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
               >
