@@ -44,10 +44,10 @@ const tasteTriangleSteps = [
   },
   {
     id: 3,
-    title: "What's your favorite city to visit, or one you dream of visiting?",
-    subtitle: "A place that speaks to your soul",
+    title: "What city are you based in or closest to?",
+    subtitle: "This helps us find local recommendations for you",
     icon: MapPin,
-    placeholder: "e.g., Tokyo, Paris, New York, Mumbai...",
+    placeholder: "e.g., New York, London, San Francisco, Mumbai...",
     field: "city" as const,
   },
 ];
